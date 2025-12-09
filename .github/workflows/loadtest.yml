@@ -1,9 +1,9 @@
-name: Auto Load Test Every 2 Minutes
+name: Auto Load Test Every 5 Minutes
 
 on:
   schedule:
-    - cron: "*/2 * * * *"   # تشغيل كل دقيقتين
-  workflow_dispatch:         # تشغيل يدوي أيضًا
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
 
 jobs:
   loadtest:
@@ -19,7 +19,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y k6
 
-      - name: Create test file
+      - name: Load Test File
         run: |
           cat << 'EOF' > test.js
           import http from 'k6/http';
@@ -38,7 +38,7 @@ jobs:
           };
 
           export default function () {
-            http.get('https://azrogo.net');
+            http.get('https://azrogo.net/');
           }
           EOF
 
