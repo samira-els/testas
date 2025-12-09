@@ -1,7 +1,9 @@
-name: Load Test 450 RPS
+name: Auto Load Test Every 2 Minutes
 
 on:
-  workflow_dispatch:
+  schedule:
+    - cron: "*/2 * * * *"   # تشغيل كل دقيقتين
+  workflow_dispatch:         # تشغيل يدوي أيضًا
 
 jobs:
   loadtest:
@@ -21,15 +23,14 @@ jobs:
         run: |
           cat << 'EOF' > test.js
           import http from 'k6/http';
-          import { sleep } from 'k6';
 
           export let options = {
             scenarios: {
               constant_rate_test: {
                 executor: 'constant-arrival-rate',
-                rate: 450,         // 450 طلب في الثانية
+                rate: 450,
                 timeUnit: '1s',
-                duration: '30s',   // مدة الاختبار (30 ثانية)
+                duration: '20s',
                 preAllocatedVUs: 600,
                 maxVUs: 800,
               },
@@ -37,7 +38,7 @@ jobs:
           };
 
           export default function () {
-            http.get('https://azrogo.net');
+            http.get('https://azrogo.net/');
           }
           EOF
 
