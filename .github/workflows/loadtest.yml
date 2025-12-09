@@ -1,0 +1,45 @@
+name: Load Test 450 RPS
+
+on:
+  workflow_dispatch:
+
+jobs:
+  loadtest:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install k6
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gnupg ca-certificates
+          curl -s https://dl.k6.io/key.gpg | sudo apt-key add -
+          echo "deb https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install -y k6
+
+      - name: Create test file
+        run: |
+          cat << 'EOF' > test.js
+          import http from 'k6/http';
+          import { sleep } from 'k6';
+
+          export let options = {
+            scenarios: {
+              constant_rate_test: {
+                executor: 'constant-arrival-rate',
+                rate: 450,         // 450 طلب في الثانية
+                timeUnit: '1s',
+                duration: '30s',   // مدة الاختبار (30 ثانية)
+                preAllocatedVUs: 600,
+                maxVUs: 800,
+              },
+            },
+          };
+
+          export default function () {
+            http.get('https://azrogo.net');
+          }
+          EOF
+
+      - name: Run Load Test
+        run: k6 run test.js
